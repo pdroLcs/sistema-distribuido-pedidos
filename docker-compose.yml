@@ -1,0 +1,28 @@
+services:
+
+  pedido-service:
+    build:
+      context: ./pedido-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: ${DB_URL}
+      DATABASE_USERNAME: ${DB_USERNAME}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pedido-db
+
+  pedido-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pedido-db-data:/var/lib/postgresql/data
+
+volumes:
+  pedido-db-data:
