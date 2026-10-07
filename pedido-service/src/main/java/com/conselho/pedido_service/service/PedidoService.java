@@ -7,12 +7,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
+
+    public List<Pedido> listarPedidos() {
+        return pedidoRepository.findAll();
+    }
 
     public Pedido criarPedido(PedidoRequest request) {
         var pedido = new Pedido();
