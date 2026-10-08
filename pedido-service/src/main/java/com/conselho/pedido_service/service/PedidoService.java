@@ -2,6 +2,7 @@ package com.conselho.pedido_service.service;
 
 import com.conselho.pedido_service.dto.PedidoRequest;
 import com.conselho.pedido_service.entity.Pedido;
+import com.conselho.pedido_service.exception.ProdutoNaoEncontradoException;
 import com.conselho.pedido_service.repository.PedidoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PedidoService {
 
     public Pedido buscarPedidoPorId(Long id) {
         return pedidoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com o ID: " + id));
+                .orElseThrow(ProdutoNaoEncontradoException::new);
     }
 
     public Pedido criarPedido(PedidoRequest request) {
