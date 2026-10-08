@@ -19,6 +19,11 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
+    public Pedido buscarPedidoPorId(Long id) {
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com o ID: " + id));
+    }
+
     public Pedido criarPedido(PedidoRequest request) {
         var pedido = new Pedido();
         pedido.setNome(request.nome());

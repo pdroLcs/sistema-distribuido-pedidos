@@ -23,6 +23,12 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.listarPedidos());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Pedido> buscarPedidoPorId(@PathVariable Long id) {
+        var pedido = pedidoService.buscarPedidoPorId(id);
+        return ResponseEntity.ok(pedido);
+    }
+
     @PostMapping
     public ResponseEntity<Pedido> criarPedido(@RequestBody @Valid PedidoRequest request) {
         var novoPedido = pedidoService.criarPedido(request);
