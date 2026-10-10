@@ -1,5 +1,13 @@
 # Sistema de Pedidos e Notificação
 
+## Sobre o projeto
+
+Este projeto é um trabalho de Computação Distribuída que integra os serviços `pedido-service` e `notificação-service`. Cada serviço possui seu próprio banco de dados e sua própria stack. O RabbitMQ faz a comunicação entre os serviços por meio de mensagens, e todo o ambiente é executado com Docker.
+
+### Arquitetura
+
+![Arquitetura](./docs/arquitetura.png)
+
 ## Executar com Docker Compose
 
 ### Pré-requisitos
