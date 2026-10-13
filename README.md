@@ -45,7 +45,7 @@ O primeiro início pode levar alguns minutos, pois o Docker precisa baixar as im
 docker compose up --build -d
 ```
 
-A API fica disponível em [http://localhost:8080](http://localhost:8080), e o PostgreSQL pode ser acessado do host pela porta `5433`. As migrações do banco são aplicadas automaticamente pela aplicação ao iniciar.
+A API de pedidos fica disponível em [http://localhost:8080](http://localhost:8080), e o PostgreSQL pode ser acessado do host pela porta `5433`. As migrações do banco são aplicadas automaticamente pela aplicação ao iniciar. A documentação via Swagger fica disponívem em [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
 
 Para acompanhar os logs da API:
 
