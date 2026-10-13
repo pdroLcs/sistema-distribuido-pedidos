@@ -24,5 +24,18 @@ services:
     volumes:
       - pedido-db-data:/var/lib/postgresql/data
 
+  rabbitmq: # Container do sistema de mensageria
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
 volumes:
   pedido-db-data:
+  rabbitmq-data:
+  
