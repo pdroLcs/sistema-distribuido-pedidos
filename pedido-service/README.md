@@ -17,6 +17,23 @@ curl.exe http://localhost:8080/pedidos
 
 A resposta é uma lista JSON com status `200 OK`. Se ainda não houver pedidos, será `[]`. Cada pedido contém `id`, `nome`, `quantidade` e `valorTotal`.
 
+```json
+[
+  {
+    "id": 1,
+    "nome": "Teclado",
+    "quantidade": 2,
+    "valorTotal": 250.0
+  },
+  {
+    "id": 2,
+    "nome": "Mouse",
+    "quantidade": 1,
+    "valorTotal": 350.0
+  }
+]
+```
+
 ### Cadastrar pedido
 
 Envie um JSON com nome, quantidade e valor total:
