@@ -1,5 +1,6 @@
 package com.conselho.pedido_service.controller;
 
+import com.conselho.pedido_service.docs.PedidoControllerDoc;
 import com.conselho.pedido_service.dto.PedidoRequest;
 import com.conselho.pedido_service.entity.Pedido;
 import com.conselho.pedido_service.service.PedidoService;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/pedidos")
 @RequiredArgsConstructor
-public class PedidoController {
+public class PedidoController implements PedidoControllerDoc {
 
     private final PedidoService pedidoService;
 
