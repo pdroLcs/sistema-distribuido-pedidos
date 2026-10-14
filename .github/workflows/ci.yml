@@ -1,0 +1,35 @@
+name: Java CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions: 
+  contents: read
+
+jobs:
+  build:
+    name: Pedido Service - Build e testes
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: pedido-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configurar Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build e testes
+        run: ./gradlew build
