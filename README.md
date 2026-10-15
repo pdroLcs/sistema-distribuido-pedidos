@@ -46,7 +46,7 @@ docker compose up --build -d
 ```
 
 A API de pedidos fica disponível em [http://localhost:8080](http://localhost:8080), e o banco de dados do pedido-service pode ser acessado do host pela porta `5433`. 
-Acesse o [README.md](./pedido-service/README.md) da API de pedidos para mais informações.
+Acesse a [API de pedidos](./pedido-service/) para mais informações.
 
 Para acompanhar os logs da API:
 
