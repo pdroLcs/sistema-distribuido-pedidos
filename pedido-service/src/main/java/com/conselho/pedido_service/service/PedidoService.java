@@ -26,10 +26,7 @@ public class PedidoService {
     }
 
     public Pedido criarPedido(PedidoRequest request) {
-        var pedido = new Pedido();
-        pedido.setNome(request.nome());
-        pedido.setQuantidade(request.quantidade());
-        pedido.setValorTotal(BigDecimal.valueOf(request.valorTotal()));
+        var pedido = new Pedido(request.nome(), request.quantidade(), BigDecimal.valueOf(request.valorTotal()));
 
         return pedidoRepository.save(pedido);
     }
