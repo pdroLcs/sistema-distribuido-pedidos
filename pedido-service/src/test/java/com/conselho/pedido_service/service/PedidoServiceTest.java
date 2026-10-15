@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,7 +43,10 @@ class PedidoServiceTest {
         @Test
         @DisplayName("Deve retornar a lista de pedidos do repositório")
         void deveRetornarPedidosDoRepositorio() {
-            var pedidos = List.of(new Pedido(1L, "Pedido 1", 2, BigDecimal.valueOf(50)));
+            var pedido = new Pedido( "Pedido 1", 2, BigDecimal.valueOf(50));
+            ReflectionTestUtils.setField(pedido, "id", 1L);
+
+            var pedidos = List.of(pedido);
             when(pedidoRepository.findAll()).thenReturn(pedidos);
 
             var resultado = pedidoService.listarPedidos();
@@ -69,7 +73,8 @@ class PedidoServiceTest {
         @Test
         @DisplayName("Deve retornar pedido quando encontrado")
         void deveRetornarPedidoQuandoEncontrado() {
-            var pedido = new Pedido(1L, "Pedido", 2, BigDecimal.valueOf(50));
+            var pedido = new Pedido("Pedido", 2, BigDecimal.valueOf(50));
+            ReflectionTestUtils.setField(pedido, "id", 1L);
             when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedido));
 
             var resultado = pedidoService.buscarPedidoPorId(1L);
