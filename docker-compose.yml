@@ -8,10 +8,17 @@ services:
       DATABASE_URL: ${DB_URL}
       DATABASE_USERNAME: ${DB_USERNAME}
       DATABASE_PASSWORD: ${DB_PASSWORD}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
-      - pedido-db
+      pedido-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   pedido-db: # Container do banco de dados
     image: postgres:16
@@ -23,6 +30,12 @@ services:
       - "5433:5432"
     volumes:
       - pedido-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   rabbitmq: # Container do sistema de mensageria
     image: rabbitmq:4-management
@@ -34,6 +47,12 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 volumes:
   pedido-db-data:
