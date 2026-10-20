@@ -1,6 +1,7 @@
 package com.conselho.pedido_service.service;
 
 import com.conselho.pedido_service.dto.PedidoRequest;
+import com.conselho.pedido_service.rabbitmq.PedidoEventPublisher;
 import com.conselho.pedido_service.entity.Pedido;
 import com.conselho.pedido_service.exception.ProdutoNaoEncontradoException;
 import com.conselho.pedido_service.repository.PedidoRepository;
@@ -33,6 +34,9 @@ class PedidoServiceTest {
 
     @Mock
     private PedidoRepository pedidoRepository;
+
+    @Mock
+    private PedidoEventPublisher pedidoEventPublisher;
 
     @InjectMocks
     private PedidoService pedidoService;
@@ -114,6 +118,7 @@ class PedidoServiceTest {
             assertEquals(3, resultado.getQuantidade());
             assertEquals(BigDecimal.valueOf(42.50), resultado.getValorTotal());
             verify(pedidoRepository).save(any(Pedido.class));
+            verify(pedidoEventPublisher).publicarPedidoCriado(any());
         }
 
         @ParameterizedTest
