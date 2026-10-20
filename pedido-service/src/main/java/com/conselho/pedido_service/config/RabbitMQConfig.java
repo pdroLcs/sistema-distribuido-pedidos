@@ -1,15 +1,17 @@
 package com.conselho.pedido_service.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.SimpleMessageConverter;
 
 @Configuration
 public class RabbitMQConfig {
@@ -34,8 +36,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public SimpleMessageConverter messageConverter() {
-        return new SimpleMessageConverter();
+    public MessageConverter messageConverter() {
+        return new JacksonJsonMessageConverter();
     }
 
     @Bean
