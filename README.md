@@ -2,11 +2,26 @@
 
 ## Sobre o projeto
 
-Este projeto é um trabalho de Computação Distribuída que integra os serviços `pedido-service` e `notificação-service`. Cada serviço possui seu próprio banco de dados e sua própria stack. O RabbitMQ faz a comunicação entre os serviços por meio de mensagens, e todo o ambiente é executado com Docker.
+Este projeto foi desenvolvido para a disciplina de **Computação Distribuída** e consiste em uma aplicação distribuída composta por um frontend, um API Gateway e dois serviços independentes: `pedido-service` e `notificacao-service`.
+
+Toda a infraestrutura é executada localmente por meio do **Docker Compose**, que gerencia os contêineres e a comunicação entre os componentes.
 
 ### Arquitetura
 
 ![Arquitetura](./docs/arquitetura.png)
+
+- **Frontend:** interface de interação com a aplicação, responsável por encaminhar as requisições ao API Gateway.
+- **API Gateway:** ponto de entrada das requisições do frontend, responsável por direcioná-las aos serviços correspondentes.
+- **pedido-service:** serviço responsável pelo gerenciamento dos pedidos, com seu próprio banco de dados, `pedido-db`.
+- **notificacao-service:** serviço responsável pelo processamento das notificações, com seu próprio banco de dados, `notificacao-db`.
+- **RabbitMQ:** sistema de mensageria utilizado para a comunicação assíncrona entre os serviços, permitindo que o `pedido-service` envie mensagens para o `notificacao-service`.
+- **Bancos de dados:** cada serviço possui seu próprio banco de dados, garantindo a separação e a autonomia dos dados.
+
+### Comunicação entre os componentes
+
+O frontend envia requisições ao API Gateway, que as direciona ao serviço responsável pela operação. Quando uma ação exige uma notificação, o `pedido-service` publica uma mensagem no RabbitMQ, que é consumida pelo `notificacao-service` para realizar o processamento correspondente.
+
+Essa arquitetura demonstra conceitos fundamentais de sistemas distribuídos, como **separação de responsabilidades, comunicação assíncrona, autonomia dos serviços e isolamento de dados**.
 
 ## Executar com Docker Compose
 
