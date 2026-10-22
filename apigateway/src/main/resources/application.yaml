@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: apigateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: pedidos-service
+              uri: http://pedido-service:8081
+              predicates:
+                - Path=/pedidos,/pedidos/**,/v3/api-docs,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html

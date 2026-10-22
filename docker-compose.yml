@@ -1,5 +1,12 @@
 services:
 
+  api-gateway:
+    build: ./apigateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pedido-service
+
   pedido-service: # Container da API de pedidos
     build:
       context: ./pedido-service
@@ -12,8 +19,8 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-    ports:
-      - "8080:8080"
+    expose:
+      - "8081"
     depends_on:
       pedido-db:
         condition: service_healthy
