@@ -19,8 +19,8 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-    expose:
-      - "8081"
+    ports:
+      - "8081:8081"
     depends_on:
       pedido-db:
         condition: service_healthy
