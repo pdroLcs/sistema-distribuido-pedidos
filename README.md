@@ -60,13 +60,13 @@ O primeiro início pode levar alguns minutos, pois o Docker precisa baixar as im
 docker compose up --build -d
 ```
 
-A API de pedidos fica disponível em [http://localhost:8080](http://localhost:8080), e o banco de dados do pedido-service pode ser acessado do host pela porta `5433`. 
-Acesse a [API de pedidos](./pedido-service/) para mais informações.
+O API Gateway fica disponível em [http://localhost:8080](http://localhost:8080) e é o ponto de entrada para as requisições da aplicação. O banco de dados do pedido-service pode ser acessado do host pela porta `5433`.
+Acesse a documentação da [API de pedidos](./pedido-service/) para mais informações.
 
-Para acompanhar os logs da API:
+Para acompanhar os logs do API Gateway:
 
 ```powershell
-docker compose logs -f pedido-service
+docker compose logs -f api-gateway
 ```
 
 Para parar os containers:
