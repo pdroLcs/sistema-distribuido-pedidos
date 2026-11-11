@@ -1,14 +1,18 @@
-// Altere para a URL/Porta em que o seu API Gateway está rodando
 const API_URL = 'http://localhost:8080/pedidos'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     carregarPedidos();
 
-    const form = document.getElementById('pedidoForm');
-    form.addEventListener('submit', cadastrarPedido);
+    // Ouve o clique do botão de salvar em vez do submit do form
+    const btnSalvar = document.getElementById('salvarBtn');
+    if (btnSalvar) {
+        btnSalvar.addEventListener('click', cadastrarPedido);
+    }
 
     const btnAtualizar = document.getElementById('atualizarBtn');
-    btnAtualizar.addEventListener('click', carregarPedidos);
+    if (btnAtualizar) {
+        btnAtualizar.addEventListener('click', carregarPedidos);
+    }
 });
 
 async function carregarPedidos() {
@@ -18,36 +22,45 @@ async function carregarPedidos() {
         
         const pedidos = await response.json();
         const tbody = document.querySelector('#pedidosTable tbody');
+        if (!tbody) return;
+        
         tbody.innerHTML = '';
 
         pedidos.forEach(pedido => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${pedido.id || ''}</td>
-                <td>${pedido.produto || pedido.nomeProduto || 'N/D'}</td>
+                <td>${pedido.nome || 'N/D'}</td>
                 <td>${pedido.quantidade || ''}</td>
-                <td>R$ ${pedido.preco ? pedido.preco.toFixed(2) : '0.00'}</td>
-                <td>${pedido.status || 'Criado'}</td>
+                <td>R$ ${pedido.valorTotal ? pedido.valorTotal.toFixed(2) : '0.00'}</td>
+                <td>Criado</td>
             `;
             tbody.appendChild(tr);
         });
     } catch (error) {
-        console.error('Erro:', error);
-        // alert('Não foi possível conectar ao servidor. Verifique se o API Gateway está rodando.');
+        console.error('Erro ao carregar:', error);
     }
 }
 
 async function cadastrarPedido(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     const produto = document.getElementById('produto').value;
     const quantidade = parseInt(document.getElementById('quantidade').value);
-    const preco = parseFloat(document.getElementById('preco').value);
+    const precoUnitario = parseFloat(document.getElementById('preco').value);
+
+    if (!produto || isNaN(quantidade) || quantidade <= 0 || isNaN(precoUnitario) || precoUnitario <= 0) {
+        alert('Por favor, preencha todos os campos corretamente.');
+        return;
+    }
+
+    // CORREÇÃO: Calculamos o valor total correto (quantidade * preço unitário)
+    const valorCalculado = quantidade * precoUnitario;
 
     const novoPedido = {
-        produto: produto,
+        nome: produto,
         quantidade: quantidade,
-        preco: preco
+        valorTotal: valorCalculado
     };
 
     try {
@@ -61,13 +74,17 @@ async function cadastrarPedido(event) {
 
         if (response.ok) {
             alert('Pedido cadastrado com sucesso!');
-            document.getElementById('pedidoForm').reset();
-            carregarPedidos(); // Atualiza a tabela
+            document.getElementById('produto').value = '';
+            document.getElementById('quantidade').value = '1';
+            document.getElementById('preco').value = '';
+            carregarPedidos(); 
         } else {
-            alert('Erro ao cadastrar pedido.');
+            const erroTxt = await response.text();
+            console.error('Erro do servidor:', erroTxt);
+            alert('Erro ao cadastrar pedido no servidor.');
         }
     } catch (error) {
-        console.error('Erro:', error);
+        console.error('Erro de rede:', error);
         alert('Erro de conexão com o API Gateway.');
     }
 }

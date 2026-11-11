@@ -61,7 +61,14 @@ services:
       retries: 10
       start_period: 10s
 
+  # O frontend agora está corretamente aninhado dentro de 'services'
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+
 volumes:
   pedido-db-data:
   rabbitmq-data:
-  
