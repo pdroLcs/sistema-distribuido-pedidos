@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pedidos - Distribuído</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciamento de Pedidos</h1>
+        
+        <!-- Formulário para Criar Pedido -->
+        <div class="card">
+            <h2>Novo Pedido</h2>
+            <form id="pedidoForm">
+                <div class="input-group">
+                    <label for="produto">Produto:</label>
+                    <input type="text" id="produto" required placeholder="Ex: Teclado Mecânico">
+                </div>
+                <div class="input-group">
+                    <label for="quantidade">Quantidade:</label>
+                    <input type="number" id="quantidade" required min="1" value="1">
+                </div>
+                <div class="input-group">
+                    <label for="preco">Preço Unitário (R$):</label>
+                    <input type="number" id="preco" required step="0.01" placeholder="0.00">
+                </div>
+                <button type="submit">Cadastrar Pedido</button>
+            </form>
+        </div>
+
+        <!-- Lista de Pedidos -->
+        <div class="card">
+            <h2>Lista de Pedidos</h2>
+            <button id="atualizarBtn">Atualizar Lista</button>
+            <table id="pedidosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço Unitário</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Os dados entram aqui via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
