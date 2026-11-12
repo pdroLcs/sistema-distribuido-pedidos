@@ -48,20 +48,19 @@ Não compartilhe nem versione o `.env`; ele contém credenciais. O `.env.example
 
 ### Iniciar
 
-Na raiz do projeto, execute:
+Na raiz do projeto, inicie a aplicação com:
 
 ```powershell
 docker compose up --build
 ```
 
-O primeiro início pode levar alguns minutos, pois o Docker precisa baixar as imagens e construir a aplicação. Para iniciar em segundo plano:
+O primeiro início pode levar alguns minutos, pois o Docker precisa baixar as imagens e construir os serviços. Para iniciar em segundo plano:
 
 ```powershell
 docker compose up --build -d
 ```
 
-O API Gateway fica disponível em [http://localhost:8080](http://localhost:8080) e é o ponto de entrada para as requisições da aplicação. O banco de dados do pedido-service pode ser acessado do host pela porta `5433`.
-Acesse a documentação da [API de pedidos](./pedido-service/) para mais informações.
+Com os serviços iniciados, acesse o frontend em [http://localhost:3000](http://localhost:3000). O frontend envia as requisições ao API Gateway, disponível em [http://localhost:8080](http://localhost:8080); normalmente, não é necessário acessá-lo diretamente.
 
 Para acompanhar os logs do API Gateway:
 
@@ -75,4 +74,4 @@ Para parar os containers:
 docker compose down
 ```
 
-Os dados do banco ficam no volume `pedido-db-data` e são preservados ao parar ou remover os containers. Para apagar também os dados persistidos e recriar o banco do zero, use `docker compose down -v`; essa ação é irreversível.
+Os dados do banco de dados dos pedidos ficam no volume `pedido-db-data` e são preservados ao parar ou remover os containers. Para apagar também os dados persistidos e recriar o banco do zero, use `docker compose down -v`; essa ação é irreversível.
