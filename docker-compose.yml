@@ -61,6 +61,43 @@ services:
       retries: 10
       start_period: 10s
 
+  notificacao-service: # Container da API de notificações
+    build:
+      context: ./notificacao-service
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: ${NOTIFICACAO_DB_URL}
+      DATABASE_USERNAME: ${NOTIFICACAO_DB_USERNAME}
+      DATABASE_PASSWORD: ${NOTIFICACAO_DB_PASSWORD}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    ports:
+      - "8082:8082"
+    depends_on:
+      notificacao-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  notificacao-db: # Container do banco de dados de notificações
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${NOTIFICACAO_POSTGRES_DB}
+      POSTGRES_USER: ${NOTIFICACAO_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${NOTIFICACAO_POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - notificacao-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # O frontend agora está corretamente aninhado dentro de 'services'
   frontend:
     build: ./frontend
@@ -72,3 +109,4 @@ services:
 volumes:
   pedido-db-data:
   rabbitmq-data:
+  notificacao-db-data:

@@ -40,7 +40,8 @@ Na raiz do projeto, crie o arquivo `.env` a partir do exemplo:
 cp .env.example .env
 ```
 
-Edite o `.env` e defina senhas para `POSTGRES_PASSWORD` e `DB_PASSWORD`. As duas devem ter o mesmo valor. `POSTGRES_USER` e `DB_USERNAME` também devem corresponder, assim como o nome do banco em `POSTGRES_DB` e no final de `DB_URL`. Também defina senha para `RABBITMQ_PASSWORD` e um valor para `RABBITMQ_USER`.
+Edite o `.env` e defina senhas para `POSTGRES_PASSWORD` e `DB_PASSWORD`. As duas devem ter o mesmo valor. `POSTGRES_USER` e `DB_USERNAME` também devem corresponder, assim como o nome do banco em `POSTGRES_DB` e no final de `DB_URL`. Também defina senha para `RABBITMQ_PASSWORD` e um valor para `RABBITMQ_USER`. Para o serviço de notificações, defina também senhas para `NOTIFICACAO_POSTGRES_PASSWORD` e `NOTIFICACAO_DB_PASSWORD`, com o mesmo valor. `NOTIFICACAO_POSTGRES_USER` e `NOTIFICACAO_DB_USERNAME` também devem corresponder, assim como o nome do banco em `NOTIFICACAO_POSTGRES_DB` e no final de `NOTIFICACAO_DB_URL`.
+
 
 Por padrão, `DB_URL` usa `pedido-db:5432`, que é o endereço interno do banco na rede do Compose. Não troque por `localhost:5433` nessa variável: a porta `5433` é para conexões feitas do computador host.
 
@@ -62,6 +63,19 @@ docker compose up --build -d
 
 Com os serviços iniciados, acesse o frontend em [http://localhost:3000](http://localhost:3000). O frontend envia as requisições ao API Gateway, disponível em [http://localhost:8080](http://localhost:8080); normalmente, não é necessário acessá-lo diretamente.
 
+Endereços disponíveis no computador host:
+
+| Serviço | Endereço |
+|---|---|
+| Frontend | [http://localhost:3000](http://localhost:3000) |
+| API Gateway | [http://localhost:8080](http://localhost:8080) |
+| pedido-service (Swagger) | [http://localhost:8081/swagger-ui/index.html](http://localhost:8081/swagger-ui/index.html) |
+| notificacao-service | [http://localhost:8082/notificacoes](http://localhost:8082/notificacoes) |
+| Painel do RabbitMQ | [http://localhost:15672](http://localhost:15672) (usuário e senha `RABBITMQ_*` do `.env`) |
+| Banco do pedido-service | `localhost:5433` |
+| Banco do notificacao-service | `localhost:5434` |
+
+
 Para acompanhar os logs do API Gateway:
 
 ```powershell
@@ -74,4 +88,4 @@ Para parar os containers:
 docker compose down
 ```
 
-Os dados do banco de dados dos pedidos ficam no volume `pedido-db-data` e são preservados ao parar ou remover os containers. Para apagar também os dados persistidos e recriar o banco do zero, use `docker compose down -v`; essa ação é irreversível.
+Os dados dos bancos ficam nos volumes `pedido-db-data` e `notificacao-db-data`, e as mensagens do RabbitMQ no volume `rabbitmq-data`. Eles são preservados ao parar ou remover os containers. Para apagar também os dados persistidos e recriar os bancos do zero, use `docker compose down -v`; essa ação é irreversível.
