@@ -234,23 +234,6 @@ No teste de controle, realizado com uma única thread e 50 requisições POST, a
 
 - Limitações: A concorrência foi fixada em 10 threads na maior parte dos cenários, com um único baseline sequencial, e a variação principal foi de volume e não de concorrência, de modo que não se traça a curva completa de latência em função da concorrência. Não houve truncamento da tabela entre as rodadas, o que afeta sobretudo o GET, que retorna a coleção completa sem paginação. Não foi instrumentado o consumo de CPU e memória por contêiner. A ordem de execução foi fixa, com rodadas menores antes das maiores, o que confunde aquecimento com volume.
 
-### 7.2 Experimento 2 — [A definir]
-
-- Objetivo:
-Medir quantitativamente a vazão do notificacao-service no consumo de eventos publicados no RabbitMQ e comparar o tempo de resposta percebido pelo cliente com o tempo efetivo de conclusão do processamento da notificação, demonstrando o desacoplamento temporal proporcionado pela comunicação assíncrona.
-
-- Procedimento:
-- São publicados 500 pedidos em sequência por meio do endpoint POST /pedidos, com o notificacao-service ativo e consumindo a fila associada à exchange pedido.exchange com routing key pedido.criado. O pedido-service registra em log o instante da publicação de cada evento, e o notificacao-service registra o instante de consumo e de conclusão do processamento de cada mensagem. A partir desses registros são calculados a vazão média do consumidor em mensagens por segundo, a latência de entrega e o tempo médio de processamento interno, comparados ao tempo de resposta medido pelo script de carga.
-- 
-- Resultados:
-
-- Análise:
-- O resultado central é o desacoplamento temporal. O tempo de resposta do fluxo principal permaneceu estável e independente da carga de processamento do consumidor, confirmando que o cliente não aguarda o processamento da notificação para receber a confirmação de criação. A diferença entre o tempo de resposta percebido pelo cliente e o tempo de conclusão do processamento assíncrono quantifica o ganho obtido com a mensageria: em implementação síncrona, esses tempos seriam somados no caminho crítico. A ausência de acúmulo na fila indica que o consumidor não se tornou gargalo para a carga testada.
-
-- Limitações:
-   Não foram executadas as duas configurações de prefetch originalmente previstas, iguais a 1 e a 10, o que impede a comparação do trade-off entre vazão agregada e latência individual de entrega. A medição se apoiou em registros de log dos serviços, cuja precisão é limitada pela granularidade de escrita, e não em instrumentação dedicada com carimbos de tempo de alta resolução.
-
-
 ## 8. Experimento de falha
 
 Será realizado um experimento envolvendo a interrupção de um dos componentes da aplicação, com o objetivo de observar como os demais componentes se comportam diante da indisponibilidade de uma parte do sistema.
