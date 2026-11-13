@@ -204,16 +204,30 @@ Serão realizados dois experimentos relacionados ao funcionamento da aplicação
 
 Os experimentos deverão avaliar aspectos como desempenho, concorrência e comportamento da comunicação entre os componentes.
 
-### 7.1 Experimento 1 — [A definir]
+### 7.1 Experimento 1 — Avaliação de desempenho e latência sob diferentes cargas de requisições HTTP.
 
 - Objetivo:
 Avaliar quantitativamente o tempo de resposta dos endpoints POST /pedidos e GET /pedidos, expostos pelo API Gateway na porta 8080, sob diferentes volumes de carga e níveis de concorrência, verificando se o fluxo de criação mantém estabilidade enquanto o processamento assíncrono das notificações ocorre em paralelo por meio do RabbitMQ. O experimento busca ainda identificar se existe contenção em recurso compartilhado no acesso ao banco e quantificar seu custo.
 
 - Procedimento:
+A aplicação foi executada localmente por meio do Docker Compose, com todos os componentes ativos: API Gateway, pedido-service, notificacao-service, RabbitMQ, pedido-db e notificacao-db.
+
+As medições foram realizadas utilizando um script de teste de carga responsável por enviar requisições HTTP concorrentes ao API Gateway, variando o método HTTP, o volume de requisições e a quantidade de threads.
+
+Antes de cada cenário, foram realizadas dez requisições de aquecimento, cujos resultados foram descartados, visando reduzir interferências relacionadas à inicialização da JVM e ao estabelecimento das conexões com o banco de dados.
+
+Foram executados sete cenários, totalizando 1.550 requisições. Para cada cenário foram registrados os tempos individuais de resposta, a média, a mediana, o percentil 95 (P95), o tempo máximo e a quantidade de erros por código HTTP.
 
 A aplicação é executada localmente via Docker Compose, com todos os componentes ativos: api-gateway, pedido-service, notificacao-service, rabbitmq, pedido-db e notificacao-db. As medições são realizadas por meio de um script que envia requisições HTTP concorrentes ao Gateway, com corpo JSON de estrutura idêntica, variando apenas o identificador de teste. Antes de cada cenário executa-se um aquecimento de dez requisições descartadas, para eliminar o custo de inicialização da JVM e do pool de conexões. Foram executados sete cenários, combinando verbo HTTP, volume e número de threads concorrentes, totalizando 1.550 requisições. Para cada cenário são registrados o tempo individual de cada requisição, do qual se extraem média, mediana, percentil 95 e valor máximo, além da contagem de erros por código de status.
 
 - Resultados:
+Os testes apresentaram respostas bem-sucedidas nos cenários avaliados, sem evidências de erros ou indisponibilidade dos serviços.
+
+As requisições POST apresentaram maior tempo de processamento em comparação às requisições GET, devido às operações adicionais de persistência no PostgreSQL e publicação de mensagens no RabbitMQ.
+
+O maior tempo de resposta registrado foi de 372,32 ms, enquanto os valores de P95 permaneceram abaixo de 236 ms em todos os cenários.
+
+No teste de controle, realizado com uma única thread e 50 requisições POST, a latência média foi de 30,14 ms, enquanto no cenário com dez threads foi de 130,93 ms.
 
 - Análise:
 - A análise verifica três pontos. Primeiro, as médias de latência caem conforme maior volume é executado, o que não indica ganho de eficiência sob carga, mas aquecimento progressivo do ambiente: compilação JIT da JVM, estabelecimento das conexões físicas do pool e cache de persistência inicialmente vazio. Os valores das rodadas menores superestimam a latência de regime permanente. Segundo, o POST é sistematicamente mais custoso que o GET por executar inserção com commit no PostgreSQL e publicação no RabbitMQ, mas o máximo nunca ultrapassou 372,32 ms e o p95 ficou abaixo de 236 ms em todos os cenários, sem indício de saturação ou degradação em cascata. Terceiro, a rodada de controle com uma única thread isola o custo de contenção: para a mesma carga de 50 POSTs, a média cai de 130,93 ms para 30,14 ms, redução de aproximadamente 4,3 vezes. Como o trabalho por requisição é idêntico, a diferença é atribuída à disputa pelo pool de conexões, cujo tamanho padrão é de 10 conexões, valor igual ao número de threads concorrentes.
