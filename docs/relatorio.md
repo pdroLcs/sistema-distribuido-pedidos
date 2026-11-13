@@ -207,31 +207,40 @@ Os experimentos deverão avaliar aspectos como desempenho, concorrência e compo
 ### 7.1 Experimento 1 — [A definir]
 
 - Objetivo:
+Avaliar quantitativamente o tempo de resposta do endpoint POST /pedidos, exposto pelo API Gateway na porta 8080, sob diferentes níveis de concorrência, verificando se o fluxo síncrono de criação de pedidos mantém estabilidade enquanto o processamento assíncrono de notificações ocorre em paralelo por meio do RabbitMQ. O experimento é quantitativo e busca identificar o ponto a partir do qual o sistema passa a apresentar degradação de desempenho.
 
 - Procedimento:
 
+A aplicação é executada localmente via Docker Compose, com todos os componentes ativos: api-gateway, pedido-service, notificacao-service, rabbitmq, pedido-db e notificacao-db. As medições são realizadas por meio de um script que envia requisições HTTP concorrentes ao Gateway, com corpo JSON de estrutura idêntica, variando apenas o identificador do cliente. Para cada rodada são disparadas 200 requisições, distribuídas em cinco níveis de concorrência: 1, 5, 10, 25 e 50 clientes simultâneos. Antes de cada rodada executa-se um aquecimento de dez requisições descartadas, para eliminar o custo de inicialização do pool de conexões. A tabela de pedidos é truncada entre as rodadas, garantindo que todos os cenários partam do mesmo estado inicial. Para cada rodada são registrados o tempo individual de cada requisição, do qual se extraem média, mediana, percentil 95 e tempo total da rodada. O consumo de CPU e memória dos contêineres é coletado durante a execução, como evidência auxiliar na identificação de gargalos.
+
 - Resultados:
 
-- Análise:
+- Análise: A análise deve verificar três pontos. Primeiro, se o crescimento da latência é aproximadamente linear em relação à concorrência, o que indicaria que o sistema responde de forma previsível dentro de sua capacidade. Segundo, se existe um nível de concorrência a partir do qual a latência cresce de forma desproporcional — comportamento característico de saturação de recurso compartilhado, tipicamente o pool de conexões do pedido-service com o PostgreSQL. Terceiro, se o tempo total da rodada estabiliza em determinado ponto, o que indicaria que o sistema deixou de ser limitado pela taxa de chegada das requisições e passou a ser limitado por sua própria vazão máxima. Os dados de CPU dos contêineres devem ser usados para corroborar ou refutar a hipótese de que o gargalo está no acesso ao banco, e não na comunicação entre os serviços.
 
 ### 7.2 Experimento 2 — [A definir]
 
 - Objetivo:
+Medir quantitativamente a vazão do notificacao-service no consumo de eventos publicados no RabbitMQ e comparar o tempo de resposta percebido pelo cliente com o tempo efetivo de conclusão do processamento da notificação, demonstrando o desacoplamento temporal proporcionado pela comunicação assíncrona. O experimento também avalia o efeito da configuração de prefetch sobre a vazão e a latência individual de entrega.
 
 - Procedimento:
-
+- São publicados 500 pedidos em sequência por meio do endpoint POST /pedidos, com o notificacao-service ativo e consumindo a fila associada à exchange pedido.exchange com routing key pedido.criado. O pedido-service registra em log o instante da publicação de cada evento, e o notificacao-service registra o instante de consumo e de conclusão do processamento de cada mensagem. A partir desses registros são calculadas a vazão média do consumidor em mensagens por segundo, a latência de entrega — intervalo entre a publicação e o início do consumo — e o tempo médio de processamento interno. O experimento é repetido em duas configurações do consumidor: com prefetch igual a 1, processando uma mensagem por vez, e com prefetch igual a 10, permitindo múltiplas mensagens em processamento simultâneo. Entre as rodadas a fila é drenada, evitando medição de resíduos da execução anterior.
+- 
 - Resultados:
 
 - Análise:
+- A análise deve verificar se o tempo de resposta do fluxo principal permanece estável independentemente da configuração do consumidor, o que confirmaria o desacoplamento temporal: o cliente não aguarda o processamento da notificação para receber a confirmação de criação do pedido. Deve também avaliar o trade-off entre vazão e latência individual — espera-se que o aumento do prefetch eleve a vazão agregada ao custo de maior espera individual por mensagem. Por fim, a diferença entre o tempo de resposta percebido pelo cliente e o tempo total de conclusão do processamento da notificação quantifica o ganho obtido com a mensageria: em uma implementação síncrona, esses tempos seriam somados no caminho crítico da requisição.
 
 ## 8. Experimento de falha
 
 Será realizado um experimento envolvendo a interrupção de um dos componentes da aplicação, com o objetivo de observar como os demais componentes se comportam diante da indisponibilidade de uma parte do sistema.
 
 - Componente interrompido:
+- O notificacao-service é interrompido durante a operação normal da aplicação. Em uma segunda etapa do mesmo experimento, o RabbitMQ também é interrompido, para observar o comportamento do pedido-service diante da indisponibilidade do broker de mensagens.
 
 - Procedimento:
+- Com a aplicação em operação normal, o contêiner do notificacao-service é parado por meio do comando docker compose stop notificacao-service. Em seguida são criados 50 novos pedidos pelo API Gateway, registrando-se o status HTTP e o tempo de resposta de cada requisição. O estado da fila é consultado via rabbitmqctl list_queues para verificar o acúmulo de mensagens não consumidas. Após esse cenário, o notificacao-service é reiniciado e observa-se o comportamento dos eventos que haviam ficado acumulados. Em uma segunda etapa, o RabbitMQ é parado com docker compose stop rabbitmq, e novas tentativas de criação de pedidos são realizadas, além de consultas e listagens, para verificar quais operações permanecem funcionais e se há divergência entre os dados persistidos no banco e os eventos efetivamente publicados na fila.
 
 - Comportamento observado:
 
 - Análise:
+- A análise deve avaliar dois aspectos. O primeiro é o isolamento de falhas: se a indisponibilidade do consumidor não afetou o fluxo principal, isso confirma que a comunicação assíncrona atua como elemento de desacoplamento, com a fila funcionando simultaneamente como buffer e como mecanismo de tolerância a falhas — a indisponibilidade de um consumidor converte-se em atraso, e não em perda de dados. O segundo é a dependência do broker: se a indisponibilidade do RabbitMQ interrompe o fluxo de escrita, isso expõe que a publicação do evento está posicionada no caminho crítico da operação. Nesse caso, a análise deve discutir as duas leituras possíveis — a priorização da consistência entre persistência e publicação, evitando pedidos sem evento correspondente, e o acoplamento ao broker como fragilidade arquitetural — e as alternativas de mitigação, como o padrão transactional outbox, no qual o evento é gravado na mesma transação do pedido e publicado posteriormente por um processo separado, ou a publicação com retentativa em segundo plano. De forma geral, o experimento evidencia que o grau de resiliência de uma arquitetura distribuída depende de onde as dependências são posicionadas no fluxo principal, e não apenas da quantidade de serviços em que a aplicação é dividida.
