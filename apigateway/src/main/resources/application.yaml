@@ -23,3 +23,7 @@ spring:
           uri: http://pedido-service:8081
           predicates:
             - Path=/pedidos/**
+        - id: notificacao-service
+          uri: http://notificacao-service:8082
+          predicates:
+            - Path=/notificacoes/**

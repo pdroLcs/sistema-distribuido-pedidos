@@ -75,3 +75,25 @@ th, td {
 th {
     background-color: #ecf0f1;
 }
+
+.notificacoes-list {
+    list-style: none;
+    margin-top: 15px;
+}
+
+.notificacoes-list li {
+    border-bottom: 1px solid #ddd;
+    padding: 12px 0;
+}
+
+.notificacoes-list li:last-child {
+    border-bottom: none;
+}
+
+.notificacoes-list p {
+    margin-bottom: 5px;
+}
+
+.notificacoes-list small {
+    color: #666;
+}

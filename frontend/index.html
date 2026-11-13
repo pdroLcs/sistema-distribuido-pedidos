@@ -49,6 +49,17 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="card">
+            <h2>Notificações</h2>
+            <button type="button" id="notificacoesBtn" aria-expanded="false" aria-controls="notificacoesSection">
+                Visualizar notificações
+            </button>
+            <section id="notificacoesSection" hidden>
+                <p id="notificacoesStatus" role="status" aria-live="polite"></p>
+                <ul id="notificacoesList" class="notificacoes-list"></ul>
+            </section>
+        </div>
     </div>
 
     <script src="script.js"></script>
